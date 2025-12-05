@@ -8,10 +8,9 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with longer timeout and disable strict SSL
+# Install dependencies with longer timeout
 RUN npm config set fetch-timeout 600000 && \
     npm config set fetch-retries 5 && \
-    npm config set strict-ssl false && \
     npm install
 
 # Copy source code
