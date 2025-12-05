@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import Sidebar from '../../components/Sidebar.astro';
 import { getMockArticlesByTag, getMockTags } from '../../lib/mockData';
 
 export async function getStaticPaths() {
@@ -48,10 +49,20 @@ const { tag, articles } = Astro.props;
       <!-- Articles Grid -->
       {
         articles.length > 0 ? (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {articles.map((article) => (
-              <ArticleCard article={article} />
-            ))}
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div class="lg:col-span-2">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {articles.map((article) => (
+                  <ArticleCard article={article} />
+                ))}
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div class="lg:col-span-1">
+              <Sidebar />
+            </div>
           </div>
         ) : (
           <div class="text-center py-12">
