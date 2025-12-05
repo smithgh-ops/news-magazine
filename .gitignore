@@ -4,3 +4,10 @@ dist/
 .env
 .DS_Store
 *.log
+
+# Test coverage
+coverage/
+.vitest/
+
+# Husky
+.husky/_

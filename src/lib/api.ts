@@ -1,15 +1,36 @@
 // API utility for BePress Public API
 import type { Article, Category, Tag, PaginatedResponse } from './types';
+import { sanitizeInput } from './sanitize';
 
-const API_BASE = import.meta.env.PUBLIC_API_BASE_URL;
-const TENANT_SLUG = import.meta.env.PUBLIC_TENANT_SLUG;
+const API_BASE = import.meta.env.PUBLIC_API_BASE_URL as string;
+const TENANT_SLUG = import.meta.env.PUBLIC_TENANT_SLUG as string;
+
+/**
+ * Validate pagination parameters
+ */
+function validatePagination(page: number, perPage: number): void {
+  if (!Number.isInteger(page) || page < 1) {
+    throw new Error('Invalid page number');
+  }
+  if (!Number.isInteger(perPage) || perPage < 1 || perPage > 100) {
+    throw new Error('Invalid perPage value');
+  }
+}
+
+/**
+ * Sanitize and encode URL parameter
+ */
+function encodeParam(param: string): string {
+  const sanitized = sanitizeInput(param, 200);
+  return encodeURIComponent(sanitized);
+}
 
 /**
  * Base fetch wrapper with required headers for BePress API
  */
 async function apiFetch<T>(endpoint: string): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
-  
+
   try {
     const response = await fetch(url, {
       headers: {
@@ -26,7 +47,7 @@ async function apiFetch<T>(endpoint: string): Promise<T> {
       throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 
-    return await response.json();
+    return (await response.json()) as T;
   } catch (error) {
     console.error(`API Error for ${url}:`, error);
     throw error;
@@ -40,6 +61,7 @@ export async function getLatestArticles(
   page: number = 1,
   perPage: number = 10
 ): Promise<PaginatedResponse<Article>> {
+  validatePagination(page, perPage);
   return apiFetch<PaginatedResponse<Article>>(
     `/public/v1/articles?page=${page}&per_page=${perPage}`
   );
@@ -49,8 +71,9 @@ export async function getLatestArticles(
  * Fetch a single article by slug
  */
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const sanitizedSlug = encodeParam(slug);
   try {
-    return await apiFetch<Article>(`/public/v1/articles/${slug}`);
+    return await apiFetch<Article>(`/public/v1/articles/${sanitizedSlug}`);
   } catch (error) {
     if (error instanceof Error && error.message.includes('not found')) {
       return null;
@@ -67,8 +90,10 @@ export async function getArticlesByCategory(
   page: number = 1,
   perPage: number = 10
 ): Promise<PaginatedResponse<Article>> {
+  validatePagination(page, perPage);
+  const sanitizedCategory = encodeParam(category);
   return apiFetch<PaginatedResponse<Article>>(
-    `/public/v1/categories/${category}/articles?page=${page}&per_page=${perPage}`
+    `/public/v1/categories/${sanitizedCategory}/articles?page=${page}&per_page=${perPage}`
   );
 }
 
@@ -80,8 +105,10 @@ export async function getArticlesByTag(
   page: number = 1,
   perPage: number = 10
 ): Promise<PaginatedResponse<Article>> {
+  validatePagination(page, perPage);
+  const sanitizedTag = encodeParam(tag);
   return apiFetch<PaginatedResponse<Article>>(
-    `/public/v1/tags/${tag}/articles?page=${page}&per_page=${perPage}`
+    `/public/v1/tags/${sanitizedTag}/articles?page=${page}&per_page=${perPage}`
   );
 }
 
