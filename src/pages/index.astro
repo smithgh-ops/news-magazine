@@ -1,0 +1,74 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { getMockLatestArticles } from '../lib/mockData';
+
+// Fetch latest articles
+const articlesResponse = getMockLatestArticles(1, 10);
+const articles = articlesResponse.data;
+
+// Separate featured article from the rest
+const [featuredArticle, ...restArticles] = articles;
+---
+
+<Layout>
+  <Navbar />
+  
+  <main class="min-h-screen bg-gray-50">
+    <!-- Breaking News Banner -->
+    <div class="bg-news-accent text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div class="flex items-center">
+          <span class="font-bold text-sm uppercase tracking-wide mr-4">Breaking News</span>
+          <p class="text-sm">
+            {featuredArticle.title}
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Featured Article -->
+      <section class="mb-12">
+        <ArticleCard article={featuredArticle} featured={true} />
+      </section>
+      
+      <!-- Latest Articles Grid -->
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-3xl font-black font-serif">Latest News</h2>
+          <a href="/archive" class="text-news-primary font-semibold hover:underline">
+            View All →
+          </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {restArticles.map((article) => (
+            <ArticleCard article={article} />
+          ))}
+        </div>
+      </section>
+      
+      <!-- Categories Section -->
+      <section class="mt-16 mb-12">
+        <h2 class="text-3xl font-black font-serif mb-6">Explore by Category</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {['Politics', 'Business', 'Technology', 'Sports', 'World'].map((category) => (
+            <a
+              href={`/categories/${category.toLowerCase()}`}
+              class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 p-6 text-white hover:from-news-primary hover:to-blue-700 transition-all duration-300"
+            >
+              <h3 class="text-xl font-bold mb-1">{category}</h3>
+              <span class="text-sm text-gray-300 group-hover:text-white">Explore →</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    </div>
+  </main>
+  
+  <Footer />
+</Layout>

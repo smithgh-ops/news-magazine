@@ -1,0 +1,69 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getMockArticlesByTag, getMockTags } from '../../lib/mockData';
+
+export async function getStaticPaths() {
+  const tags = getMockTags();
+  
+  return tags.map((tag) => {
+    const response = getMockArticlesByTag(tag.slug, 1, 100);
+    return {
+      params: { tag: tag.slug },
+      props: { 
+        tag,
+        articles: response.data,
+      },
+    };
+  });
+}
+
+const { tag, articles } = Astro.props;
+---
+
+<Layout 
+  title={`#${tag.name}`}
+  description={`Articles tagged with ${tag.name}`}
+>
+  <Navbar />
+  
+  <main class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Tag Header -->
+      <header class="mb-12">
+        <div class="flex items-center mb-4">
+          <a href="/" class="text-news-primary hover:underline text-sm font-semibold">
+            Home
+          </a>
+          <span class="mx-2 text-gray-400">/</span>
+          <span class="text-sm text-gray-600">Tags</span>
+        </div>
+        
+        <h1 class="text-4xl md:text-5xl font-black font-serif text-gray-900 mb-4">
+          #{tag.name}
+        </h1>
+        
+        <p class="text-lg text-gray-600">
+          {articles.length} {articles.length === 1 ? 'article' : 'articles'} tagged with "{tag.name}"
+        </p>
+      </header>
+      
+      <!-- Articles Grid -->
+      {articles.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {articles.map((article) => (
+            <ArticleCard article={article} />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-gray-500 text-lg">No articles found with this tag yet.</p>
+        </div>
+      )}
+    </div>
+  </main>
+  
+  <Footer />
+</Layout>
