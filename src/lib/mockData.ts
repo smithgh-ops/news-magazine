@@ -456,3 +456,11 @@ export function getMockCategories(): Category[] {
 export function getMockTags(): Tag[] {
   return mockTags;
 }
+
+/**
+ * Mock implementation of getPopularArticles
+ * Returns articles sorted by views in descending order
+ */
+export function getMockPopularArticles(limit: number = 5): Article[] {
+  return [...mockArticles].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, limit);
+}

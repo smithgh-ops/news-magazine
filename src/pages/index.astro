@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import ArticleCard from '../components/ArticleCard.astro';
+import Sidebar from '../components/Sidebar.astro';
 import { getMockLatestArticles } from '../lib/mockData';
 
 // Fetch latest articles
@@ -36,43 +37,54 @@ const [featuredArticle, ...restArticles] = articles;
         <ArticleCard article={featuredArticle} featured={true} />
       </section>
 
-      <!-- Latest Articles Grid -->
-      <section>
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-3xl font-black font-serif">Berita Terbaru</h2>
-          <a href="/archive" class="text-news-primary font-semibold hover:underline">
-            Lihat Semua →
-          </a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {restArticles.map((article) => <ArticleCard article={article} />)}
-        </div>
-      </section>
-
-      <!-- Categories Section -->
-      <section class="mt-16 mb-12">
-        <h2 class="text-3xl font-black font-serif mb-6">Jelajahi berdasarkan Kategori</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {
-            [
-              { name: 'Politik', slug: 'politik' },
-              { name: 'Bisnis', slug: 'bisnis' },
-              { name: 'Teknologi', slug: 'teknologi' },
-              { name: 'Olahraga', slug: 'olahraga' },
-              { name: 'Internasional', slug: 'internasional' },
-            ].map((category) => (
-              <a
-                href={`/categories/${category.slug}`}
-                class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 p-6 text-white hover:from-news-primary hover:to-blue-700 transition-all duration-300"
-              >
-                <h3 class="text-xl font-bold mb-1">{category.name}</h3>
-                <span class="text-sm text-gray-300 group-hover:text-white">Jelajahi →</span>
+      <!-- Content with Sidebar Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content Column -->
+        <div class="lg:col-span-2">
+          <!-- Latest Articles Grid -->
+          <section>
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-3xl font-black font-serif">Berita Terbaru</h2>
+              <a href="/archive" class="text-news-primary font-semibold hover:underline">
+                Lihat Semua →
               </a>
-            ))
-          }
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {restArticles.map((article) => <ArticleCard article={article} />)}
+            </div>
+          </section>
+
+          <!-- Categories Section -->
+          <section class="mt-16 mb-12">
+            <h2 class="text-3xl font-black font-serif mb-6">Jelajahi berdasarkan Kategori</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {
+                [
+                  { name: 'Politik', slug: 'politik' },
+                  { name: 'Bisnis', slug: 'bisnis' },
+                  { name: 'Teknologi', slug: 'teknologi' },
+                  { name: 'Olahraga', slug: 'olahraga' },
+                  { name: 'Internasional', slug: 'internasional' },
+                ].map((category) => (
+                  <a
+                    href={`/categories/${category.slug}`}
+                    class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 p-6 text-white hover:from-news-primary hover:to-blue-700 transition-all duration-300"
+                  >
+                    <h3 class="text-xl font-bold mb-1">{category.name}</h3>
+                    <span class="text-sm text-gray-300 group-hover:text-white">Jelajahi →</span>
+                  </a>
+                ))
+              }
+            </div>
+          </section>
         </div>
-      </section>
+
+        <!-- Sidebar Column -->
+        <div class="lg:col-span-1">
+          <Sidebar />
+        </div>
+      </div>
     </div>
   </main>
 
