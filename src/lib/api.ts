@@ -2,8 +2,9 @@
 import type { Article, Category, Tag, PaginatedResponse } from './types';
 import { sanitizeInput } from './sanitize';
 
-const API_BASE = import.meta.env.PUBLIC_API_BASE_URL as string;
-const TENANT_SLUG = import.meta.env.PUBLIC_TENANT_SLUG as string;
+// Use temporary/fallback data if environment variables are not available
+const API_BASE: string = import.meta.env.PUBLIC_API_BASE_URL || 'https://api.bepress.com';
+const TENANT_SLUG: string = import.meta.env.PUBLIC_TENANT_SLUG || 'news1';
 
 /**
  * Validate pagination parameters
