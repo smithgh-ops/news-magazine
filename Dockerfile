@@ -8,9 +8,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production --ignore-scripts && \
-    npm cache clean --force
+# Install dependencies with longer timeout and disable strict SSL
+RUN npm config set fetch-timeout 600000 && \
+    npm config set fetch-retries 5 && \
+    npm config set strict-ssl false && \
+    npm install
 
 # Copy source code
 COPY . .
@@ -33,12 +35,6 @@ RUN npm run build
 # Stage 2: Production server with nginx
 FROM nginx:alpine AS production
 
-# Install security updates
-RUN apk update && \
-    apk upgrade && \
-    apk add --no-cache tini && \
-    rm -rf /var/cache/apk/*
-
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
@@ -48,9 +44,6 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
-
-# Use tini as init system for proper signal handling
-ENTRYPOINT ["/sbin/tini", "--"]
 
 # Expose port 80
 EXPOSE 80
