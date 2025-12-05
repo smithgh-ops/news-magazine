@@ -35,10 +35,10 @@ const { tag, articles } = Astro.props;
       <header class="mb-12">
         <div class="flex items-center mb-4">
           <a href="/" class="text-news-primary hover:underline text-sm font-semibold">
-            Home
+            Beranda
           </a>
           <span class="mx-2 text-gray-400">/</span>
-          <span class="text-sm text-gray-600">Tags</span>
+          <span class="text-sm text-gray-600">Tag</span>
         </div>
         
         <h1 class="text-4xl md:text-5xl font-black font-serif text-gray-900 mb-4">
@@ -46,7 +46,7 @@ const { tag, articles } = Astro.props;
         </h1>
         
         <p class="text-lg text-gray-600">
-          {articles.length} {articles.length === 1 ? 'article' : 'articles'} tagged with "{tag.name}"
+          {articles.length} artikel dengan tag "{tag.name}"
         </p>
       </header>
       
@@ -59,7 +59,7 @@ const { tag, articles } = Astro.props;
         </div>
       ) : (
         <div class="text-center py-12">
-          <p class="text-gray-500 text-lg">No articles found with this tag yet.</p>
+          <p class="text-gray-500 text-lg">Belum ada artikel dengan tag ini.</p>
         </div>
       )}
     </div>
