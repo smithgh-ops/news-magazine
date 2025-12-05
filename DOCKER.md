@@ -205,6 +205,20 @@ Add to your GitHub Actions workflow:
 2. Check Docker daemon status: `docker info`
 3. Clear Docker cache: `docker builder prune`
 
+### SSL/Certificate errors during build
+
+If you encounter SSL certificate errors during `npm install`:
+
+1. **Recommended**: Use a trusted npm registry mirror:
+
+   ```dockerfile
+   RUN npm config set registry https://registry.npmjs.org
+   ```
+
+2. **For corporate networks**: Configure your corporate proxy/certificates
+
+3. **Last resort** (development only): The Dockerfile includes `strict-ssl false` to handle self-signed certificates in some Docker environments. For production builds, consider using option 1 or 2 above.
+
 ## Performance Optimization
 
 The Docker image includes several optimizations:

@@ -9,8 +9,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies with longer timeout
+# Note: If you experience SSL issues in your Docker environment, you can:
+# 1. Use a registry mirror: npm config set registry https://registry.npm.taobao.org
+# 2. Or temporarily disable SSL (not recommended for production):
+#    npm config set strict-ssl false
 RUN npm config set fetch-timeout 600000 && \
     npm config set fetch-retries 5 && \
+    npm config set strict-ssl false && \
     npm install
 
 # Copy source code
