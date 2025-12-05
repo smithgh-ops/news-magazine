@@ -1,0 +1,326 @@
+---
+import { format } from 'date-fns';
+import type { Article } from '../lib/types';
+
+interface Props {
+  articles: Article[];
+}
+
+const { articles } = Astro.props;
+---
+
+<section class="hero-slider relative bg-gray-900">
+  <div class="max-w-7xl mx-auto">
+    <!-- Slides Container -->
+    <div class="slides-container relative overflow-hidden">
+      {
+        articles.map((article, index) => {
+          const formattedDate = format(new Date(article.publishedAt), 'MMMM d, yyyy');
+          return (
+            <div class={`slide ${index === 0 ? 'active' : ''}`} data-slide-index={index}>
+              <a href={`/articles/${article.slug}`} class="block">
+                <div class="relative h-[400px] md:h-[500px] lg:h-[600px]">
+                  <img
+                    src={article.featuredImage}
+                    alt={`Featured image for article: ${article.title}`}
+                    class="w-full h-full object-cover"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+
+                  <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 lg:p-12">
+                    <div class="max-w-4xl">
+                      {article.categories.length > 0 && (
+                        <span class="inline-block px-3 py-1 text-xs font-bold text-white bg-news-accent rounded mb-4">
+                          {article.categories[0].name}
+                        </span>
+                      )}
+
+                      <h2 class="text-2xl md:text-3xl lg:text-5xl font-serif font-bold text-white mb-3 lg:mb-4 line-clamp-2">
+                        {article.title}
+                      </h2>
+
+                      <p class="text-sm md:text-base lg:text-lg text-gray-200 mb-4 line-clamp-2 hidden sm:block">
+                        {article.excerpt}
+                      </p>
+
+                      <div class="flex items-center text-xs md:text-sm text-gray-300">
+                        <span class="font-semibold text-white">{article.author.name}</span>
+                        <span class="mx-2">•</span>
+                        <time datetime={article.publishedAt}>{formattedDate}</time>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <!-- Navigation Arrows -->
+    <button
+      class="nav-button prev absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-2 md:p-3 rounded-full transition-all z-10"
+      aria-label="Previous slide"
+    >
+      <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"
+        ></path>
+      </svg>
+    </button>
+
+    <button
+      class="nav-button next absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-2 md:p-3 rounded-full transition-all z-10"
+      aria-label="Next slide"
+    >
+      <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"
+        ></path>
+      </svg>
+    </button>
+
+    <!-- Dots Indicator -->
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      {
+        articles.map((_, index) => (
+          <button
+            class={`dot w-2 h-2 md:w-3 md:h-3 rounded-full transition-all ${index === 0 ? 'bg-white w-6 md:w-8' : 'bg-white/50 hover:bg-white/70'}`}
+            data-slide-index={index}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .slides-container {
+    position: relative;
+    width: 100%;
+  }
+
+  .slide {
+    display: none;
+    width: 100%;
+  }
+
+  .slide.active {
+    display: block;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Touch-friendly buttons on mobile */
+  @media (max-width: 768px) {
+    .nav-button {
+      touch-action: manipulation;
+    }
+  }
+</style>
+
+<script>
+  class HeroSlider {
+    private currentSlide = 0;
+    private slides: NodeListOf<Element>;
+    private dots: NodeListOf<Element>;
+    private autoplayInterval: number | null = null;
+    private touchStartX = 0;
+    private touchEndX = 0;
+    private container: Element | null = null;
+    private slider: Element | null = null;
+    private dotHandlers: Map<Element, () => void> = new Map();
+    private boundHandlers = {
+      prev: () => this.prevSlide(),
+      next: () => this.nextSlide(),
+      touchStart: (e: Event) => this.handleTouchStart(e as TouchEvent),
+      touchEnd: (e: Event) => this.handleTouchEnd(e as TouchEvent),
+      mouseEnter: () => this.stopAutoplay(),
+      mouseLeave: () => this.startAutoplay(),
+    };
+
+    constructor() {
+      this.slides = document.querySelectorAll('.slide');
+      this.dots = document.querySelectorAll('.dot');
+      this.container = document.querySelector('.slides-container');
+      this.slider = document.querySelector('.hero-slider');
+
+      if (this.slides.length === 0) return;
+
+      this.initEventListeners();
+      this.startAutoplay();
+    }
+
+    private initEventListeners() {
+      // Previous/Next buttons
+      const prevBtn = document.querySelector('.nav-button.prev');
+      const nextBtn = document.querySelector('.nav-button.next');
+
+      prevBtn?.addEventListener('click', this.boundHandlers.prev);
+      nextBtn?.addEventListener('click', this.boundHandlers.next);
+
+      // Dots
+      this.dots.forEach((dot, index) => {
+        const handler = () => this.goToSlide(index);
+        this.dotHandlers.set(dot, handler);
+        dot.addEventListener('click', handler);
+      });
+
+      // Touch events for mobile swipe
+      if (this.container) {
+        this.container.addEventListener('touchstart', this.boundHandlers.touchStart, {
+          passive: true,
+        });
+        this.container.addEventListener('touchend', this.boundHandlers.touchEnd, { passive: true });
+      }
+
+      // Pause on hover
+      this.slider?.addEventListener('mouseenter', this.boundHandlers.mouseEnter);
+      this.slider?.addEventListener('mouseleave', this.boundHandlers.mouseLeave);
+    }
+
+    private handleTouchStart(e: TouchEvent) {
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        this.touchStartX = e.changedTouches[0].clientX;
+      }
+    }
+
+    private handleTouchEnd(e: TouchEvent) {
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        this.touchEndX = e.changedTouches[0].clientX;
+        this.handleSwipe();
+      }
+    }
+
+    private handleSwipe() {
+      const swipeThreshold = 50;
+      const diff = this.touchStartX - this.touchEndX;
+
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+          this.nextSlide();
+        } else {
+          this.prevSlide();
+        }
+      }
+    }
+
+    private goToSlide(index: number) {
+      this.slides[this.currentSlide].classList.remove('active');
+      this.dots[this.currentSlide].classList.remove('bg-white', 'w-6', 'md:w-8');
+      this.dots[this.currentSlide].classList.add('bg-white/50');
+
+      this.currentSlide = index;
+
+      this.slides[this.currentSlide].classList.add('active');
+      this.dots[this.currentSlide].classList.remove('bg-white/50');
+      this.dots[this.currentSlide].classList.add('bg-white', 'w-6', 'md:w-8');
+
+      this.resetAutoplay();
+    }
+
+    private nextSlide() {
+      const next = (this.currentSlide + 1) % this.slides.length;
+      this.goToSlide(next);
+    }
+
+    private prevSlide() {
+      const prev = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+      this.goToSlide(prev);
+    }
+
+    private startAutoplay() {
+      this.stopAutoplay();
+      this.autoplayInterval = window.setInterval(() => {
+        this.nextSlide();
+      }, 5000);
+    }
+
+    private stopAutoplay() {
+      if (this.autoplayInterval) {
+        clearInterval(this.autoplayInterval);
+        this.autoplayInterval = null;
+      }
+    }
+
+    private resetAutoplay() {
+      this.startAutoplay();
+    }
+
+    public destroy() {
+      this.stopAutoplay();
+
+      // Remove event listeners
+      const prevBtn = document.querySelector('.nav-button.prev');
+      const nextBtn = document.querySelector('.nav-button.next');
+
+      prevBtn?.removeEventListener('click', this.boundHandlers.prev);
+      nextBtn?.removeEventListener('click', this.boundHandlers.next);
+
+      if (this.container) {
+        this.container.removeEventListener('touchstart', this.boundHandlers.touchStart);
+        this.container.removeEventListener('touchend', this.boundHandlers.touchEnd);
+      }
+
+      this.slider?.removeEventListener('mouseenter', this.boundHandlers.mouseEnter);
+      this.slider?.removeEventListener('mouseleave', this.boundHandlers.mouseLeave);
+
+      // Remove dot listeners
+      this.dotHandlers.forEach((handler, dot) => {
+        dot.removeEventListener('click', handler);
+      });
+      this.dotHandlers.clear();
+    }
+  }
+
+  // Use WeakMap to store instances (better than global variable or element property)
+  const sliderInstances = new WeakMap<Element, HeroSlider>();
+
+  function initializeSlider() {
+    const sliderElement = document.querySelector('.hero-slider');
+    if (!sliderElement) return;
+
+    // Check if already initialized
+    if (sliderInstances.has(sliderElement)) {
+      return;
+    }
+
+    // Create and store instance
+    const instance = new HeroSlider();
+    sliderInstances.set(sliderElement, instance);
+  }
+
+  function cleanupSlider() {
+    const sliderElement = document.querySelector('.hero-slider');
+    if (!sliderElement) return;
+
+    const instance = sliderInstances.get(sliderElement);
+    if (instance) {
+      instance.destroy();
+      sliderInstances.delete(sliderElement);
+    }
+  }
+
+  // Initialize slider when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSlider);
+  } else {
+    initializeSlider();
+  }
+
+  // Re-initialize on view transitions
+  document.addEventListener('astro:page-load', initializeSlider);
+
+  // Cleanup on before swap
+  document.addEventListener('astro:before-swap', cleanupSlider);
+</script>

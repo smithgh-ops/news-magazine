@@ -4,84 +4,82 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import Sidebar from '../components/Sidebar.astro';
-import { getMockLatestArticles } from '../lib/mockData';
+import NewsTicker from '../components/NewsTicker.astro';
+import HeroSlider from '../components/HeroSlider.astro';
+import { getMockLatestArticles, getMockCategories, getMockPopularArticles } from '../lib/mockData';
 
 // Fetch latest articles
-const articlesResponse = getMockLatestArticles(1, 10);
+const articlesResponse = getMockLatestArticles(1, 15);
 const articles = articlesResponse.data;
 
-// Separate featured article from the rest
-const [featuredArticle, ...restArticles] = articles;
+// Get breaking news for ticker (5 most popular articles)
+const breakingNews = getMockPopularArticles(5);
+
+// Get featured articles for hero slider (first 5 articles)
+const featuredArticles = articles.slice(0, 5);
+
+// Get remaining articles for grid
+const gridArticles = articles.slice(5);
+
+// Get all categories
+const categories = getMockCategories();
 ---
 
 <Layout>
   <Navbar />
 
   <main class="min-h-screen bg-gray-50">
-    <!-- Breaking News Banner -->
-    <div class="bg-news-accent text-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div class="flex items-center">
-          <span class="font-bold text-sm uppercase tracking-wide mr-4">Berita Utama</span>
-          <p class="text-sm">
-            {featuredArticle.title}
-          </p>
-        </div>
-      </div>
-    </div>
+    <!-- News Ticker -->
+    <NewsTicker articles={breakingNews} />
+
+    <!-- Hero Slider -->
+    <HeroSlider articles={featuredArticles} />
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Featured Article -->
-      <section class="mb-12">
-        <ArticleCard article={featuredArticle} featured={true} />
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <!-- Latest Articles Grid -->
+      <section class="mb-12 md:mb-16">
+        <div class="flex items-center justify-between mb-6 md:mb-8">
+          <h2 class="text-2xl md:text-3xl font-black font-serif">Berita Terbaru</h2>
+          <a
+            href="/archive"
+            class="text-news-primary font-semibold hover:underline text-sm md:text-base"
+          >
+            Lihat Semua →
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {gridArticles.map((article) => <ArticleCard article={article} />)}
+        </div>
+      </section>
+
+      <!-- Categories Section -->
+      <section class="mb-12 md:mb-16">
+        <h2 class="text-2xl md:text-3xl font-black font-serif mb-6 md:mb-8">
+          Jelajahi berdasarkan Kategori
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+          {
+            categories.map((category) => (
+              <a
+                href={`/categories/${category.slug}`}
+                class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 p-4 md:p-6 text-white hover:from-news-primary hover:to-blue-700 transition-all duration-300 transform hover:scale-105"
+              >
+                <h3 class="text-base md:text-xl font-bold mb-1">{category.name}</h3>
+                <span class="text-xs md:text-sm text-gray-300 group-hover:text-white">
+                  Jelajahi →
+                </span>
+              </a>
+            ))
+          }
+        </div>
       </section>
 
       <!-- Content with Sidebar Layout -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main Content Column -->
-        <div class="lg:col-span-2">
-          <!-- Latest Articles Grid -->
-          <section>
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-3xl font-black font-serif">Berita Terbaru</h2>
-              <a href="/archive" class="text-news-primary font-semibold hover:underline">
-                Lihat Semua →
-              </a>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {restArticles.map((article) => <ArticleCard article={article} />)}
-            </div>
-          </section>
-
-          <!-- Categories Section -->
-          <section class="mt-16 mb-12">
-            <h2 class="text-3xl font-black font-serif mb-6">Jelajahi berdasarkan Kategori</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {
-                [
-                  { name: 'Politik', slug: 'politik' },
-                  { name: 'Bisnis', slug: 'bisnis' },
-                  { name: 'Teknologi', slug: 'teknologi' },
-                  { name: 'Olahraga', slug: 'olahraga' },
-                  { name: 'Internasional', slug: 'internasional' },
-                ].map((category) => (
-                  <a
-                    href={`/categories/${category.slug}`}
-                    class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 p-6 text-white hover:from-news-primary hover:to-blue-700 transition-all duration-300"
-                  >
-                    <h3 class="text-xl font-bold mb-1">{category.name}</h3>
-                    <span class="text-sm text-gray-300 group-hover:text-white">Jelajahi →</span>
-                  </a>
-                ))
-              }
-            </div>
-          </section>
-        </div>
-
         <!-- Sidebar Column -->
-        <div class="lg:col-span-1">
+        <div class="lg:col-span-1 order-first lg:order-last">
           <Sidebar />
         </div>
       </div>
