@@ -1,0 +1,89 @@
+---
+import type { Article } from '../lib/types';
+
+interface Props {
+  articles: Article[];
+}
+
+const { articles } = Astro.props;
+
+// Helper to render ticker items with proper separator logic
+const renderTickerItems = (items: Article[], totalItems: number) =>
+  items.map((article, index) => ({
+    title: article.title,
+    slug: article.slug,
+    // Show separator for all items except the last one in the entire duplicated array
+    showSeparator: index < totalItems - 1,
+  }));
+
+// Duplicate items for seamless looping
+const duplicatedArticles = [...articles, ...articles];
+const tickerItems = renderTickerItems(duplicatedArticles, duplicatedArticles.length);
+---
+
+<div class="bg-news-accent text-white overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <div class="flex items-center">
+      <div class="flex-shrink-0 mr-4">
+        <span
+          class="font-bold text-sm uppercase tracking-wide bg-white text-news-accent px-3 py-1 rounded"
+        >
+          Breaking News
+        </span>
+      </div>
+      <div class="flex-1 overflow-hidden">
+        <div class="ticker-wrapper">
+          <div class="ticker-content">
+            {
+              tickerItems.map((item) => (
+                <a href={`/articles/${item.slug}`} class="ticker-item inline-block hover:underline">
+                  <span class="font-medium">{item.title}</span>
+                  {item.showSeparator && <span class="mx-4">•</span>}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ticker-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .ticker-content {
+    display: inline-flex;
+    white-space: nowrap;
+    animation: scroll 30s linear infinite;
+  }
+
+  .ticker-item {
+    display: inline-block;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Pause on hover */
+  .ticker-wrapper:hover .ticker-content {
+    animation-play-state: paused;
+  }
+
+  /* Mobile optimization */
+  @media (max-width: 640px) {
+    .ticker-content {
+      animation-duration: 25s;
+    }
+  }
+</style>
