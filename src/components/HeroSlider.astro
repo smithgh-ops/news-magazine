@@ -191,13 +191,13 @@ const { articles } = Astro.props;
 
     private handleTouchStart(e: TouchEvent) {
       if (e.changedTouches && e.changedTouches.length > 0) {
-        this.touchStartX = e.changedTouches[0].screenX;
+        this.touchStartX = e.changedTouches[0].clientX;
       }
     }
 
     private handleTouchEnd(e: TouchEvent) {
       if (e.changedTouches && e.changedTouches.length > 0) {
-        this.touchEndX = e.changedTouches[0].screenX;
+        this.touchEndX = e.changedTouches[0].clientX;
         this.handleSwipe();
       }
     }
