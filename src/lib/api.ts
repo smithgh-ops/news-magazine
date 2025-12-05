@@ -10,10 +10,10 @@ const TENANT_SLUG = import.meta.env.PUBLIC_TENANT_SLUG as string;
  */
 function validatePagination(page: number, perPage: number): void {
   if (!Number.isInteger(page) || page < 1) {
-    throw new Error('Invalid page number');
+    throw new Error(`Page number must be a positive integer, received: ${page}`);
   }
   if (!Number.isInteger(perPage) || perPage < 1 || perPage > 100) {
-    throw new Error('Invalid perPage value');
+    throw new Error(`perPage must be between 1-100, received: ${perPage}`);
   }
 }
 

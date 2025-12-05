@@ -28,10 +28,10 @@ describe('sanitizeHtml', () => {
   });
 
   it('should preserve allowed attributes', () => {
-    const input = '<a href="https://example.com" target="_blank" rel="noopener">Link</a>';
+    const input = '<a href="https://example.com" title="Example">Link</a>';
     const result = sanitizeHtml(input);
     expect(result).toContain('href="https://example.com"');
-    expect(result).toContain('target="_blank"');
+    expect(result).toContain('title="Example"');
   });
 });
 

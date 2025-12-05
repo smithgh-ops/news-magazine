@@ -32,8 +32,8 @@ export function sanitizeHtml(dirty: string): string {
     ],
     ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id', 'target', 'rel'],
     ALLOW_DATA_ATTR: false,
-    ALLOWED_URI_REGEXP:
-      /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.:-]|$))/i,
+    // Only allow safe protocols: http, https, mailto, tel
+    ALLOWED_URI_REGEXP: /^(?:https?|mailto|tel):/i,
   });
 }
 
