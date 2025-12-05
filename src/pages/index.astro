@@ -15,7 +15,7 @@ const [featuredArticle, ...restArticles] = articles;
 
 <Layout>
   <Navbar />
-  
+
   <main class="min-h-screen bg-gray-50">
     <!-- Breaking News Banner -->
     <div class="bg-news-accent text-white">
@@ -28,14 +28,14 @@ const [featuredArticle, ...restArticles] = articles;
         </div>
       </div>
     </div>
-    
+
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Featured Article -->
       <section class="mb-12">
         <ArticleCard article={featuredArticle} featured={true} />
       </section>
-      
+
       <!-- Latest Articles Grid -->
       <section>
         <div class="flex items-center justify-between mb-6">
@@ -44,37 +44,37 @@ const [featuredArticle, ...restArticles] = articles;
             Lihat Semua →
           </a>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {restArticles.map((article) => (
-            <ArticleCard article={article} />
-          ))}
+          {restArticles.map((article) => <ArticleCard article={article} />)}
         </div>
       </section>
-      
+
       <!-- Categories Section -->
       <section class="mt-16 mb-12">
         <h2 class="text-3xl font-black font-serif mb-6">Jelajahi berdasarkan Kategori</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {[
-            { name: 'Politik', slug: 'politik' },
-            { name: 'Bisnis', slug: 'bisnis' },
-            { name: 'Teknologi', slug: 'teknologi' },
-            { name: 'Olahraga', slug: 'olahraga' },
-            { name: 'Internasional', slug: 'internasional' }
-          ].map((category) => (
-            <a
-              href={`/categories/${category.slug}`}
-              class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 p-6 text-white hover:from-news-primary hover:to-blue-700 transition-all duration-300"
-            >
-              <h3 class="text-xl font-bold mb-1">{category.name}</h3>
-              <span class="text-sm text-gray-300 group-hover:text-white">Jelajahi →</span>
-            </a>
-          ))}
+          {
+            [
+              { name: 'Politik', slug: 'politik' },
+              { name: 'Bisnis', slug: 'bisnis' },
+              { name: 'Teknologi', slug: 'teknologi' },
+              { name: 'Olahraga', slug: 'olahraga' },
+              { name: 'Internasional', slug: 'internasional' },
+            ].map((category) => (
+              <a
+                href={`/categories/${category.slug}`}
+                class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 p-6 text-white hover:from-news-primary hover:to-blue-700 transition-all duration-300"
+              >
+                <h3 class="text-xl font-bold mb-1">{category.name}</h3>
+                <span class="text-sm text-gray-300 group-hover:text-white">Jelajahi →</span>
+              </a>
+            ))
+          }
         </div>
       </section>
     </div>
   </main>
-  
+
   <Footer />
 </Layout>
