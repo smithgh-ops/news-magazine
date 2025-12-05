@@ -347,6 +347,23 @@ Please see [SECURITY.md](SECURITY.md) for our security policy and how to report 
 
 This is a static site that can be deployed to any static hosting service:
 
+### Docker (Recommended for Production)
+
+Deploy with Docker for better scalability and maintenance:
+
+```bash
+# Using Docker Compose
+docker-compose up -d
+
+# Or using Docker CLI
+docker build -t news-magazine:latest .
+docker run -d -p 80:80 news-magazine:latest
+```
+
+See [DOCKER.md](DOCKER.md) for complete Docker deployment guide.
+
+### Other Hosting Options
+
 - **Vercel:** `vercel --prod`
 - **Netlify:** Connect your repository and deploy
 - **GitHub Pages:** Build and deploy the `dist/` folder
@@ -359,6 +376,12 @@ Required environment variables:
 - `PUBLIC_API_BASE_URL` - Base URL for the BePress API
 - `PUBLIC_TENANT_SLUG` - Tenant identifier for API requests
 - `PUBLIC_SITE_NAME` - Display name for the website
+
+Optional environment variables:
+
+- `PUBLIC_API_KEY` - API authentication key (if your API requires it)
+
+For Docker deployment, see [DOCKER.md](DOCKER.md) for environment configuration details.
 
 ## 📄 License
 
